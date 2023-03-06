@@ -9,3 +9,10 @@ optional-dependencies = {dev = ["black", "flake8", "isort", "pre-commit"]}
 
 [tool.setuptools]
 packages = ["huffc"]
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
