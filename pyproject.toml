@@ -5,6 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "py-huffc"
 version = "0.1.0"
+optional-dependencies = {dev = ["black", "flake8", "isort", "pre-commit"]}
 
 [tool.setuptools]
 packages = ["huffc"]
