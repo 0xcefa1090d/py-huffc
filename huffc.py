@@ -19,6 +19,11 @@ class VersionManager:
         self.session = None
         self.HUFFC_DIR.mkdir(exist_ok=True)
 
+    @classmethod
+    def get_executable(cls, version):
+        if (path := cls.HUFFC_DIR / f"huffc-{version}").exists():
+            return path
+
     def fetch_remote_versions(self):
         versions = []
         for page in itertools.count(1):
