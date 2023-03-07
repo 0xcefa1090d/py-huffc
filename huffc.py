@@ -43,7 +43,7 @@ class VersionManager:
 
         return versions
 
-    def install(self, version, overwrite=False):
+    def install(self, version, overwrite=False, silent=False):
         assert semver.Version(version) in self.fetch_remote_versions()
 
         if not overwrite:
@@ -93,10 +93,11 @@ class VersionManager:
                 with tarfile.open(tmp.name) as tar:
                     tar.extractall(tmpdir)
 
-                repo = next(pathlib.Path(tmpdir).iterdir())
-                subprocess.run(
-                    [tool, "build", "-r", "--locked", "--bin", "huffc"], cwd=repo, check=True
-                )
+                args = [tool, "build", "-r", "--locked", "--bin", "huffc"]
+                if silent:
+                    args += ["--quiet"]
+
+                subprocess.run(args, cwd=(repo := next(pathlib.Path(tmpdir).iterdir())), check=True)
                 shutil.copyfile(
                     repo / "target/release/huffc", (binary := self.HUFFC_DIR / f"huffc-{version}")
                 )
