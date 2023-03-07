@@ -8,9 +8,6 @@ version = "0.1.0"
 dependencies = ["requests", "semantic-version"]
 optional-dependencies = {dev = ["black", "flake8", "isort", "pre-commit"]}
 
-[tool.setuptools]
-packages = ["huffc"]
-
 [tool.black]
 line-length = 100
 
