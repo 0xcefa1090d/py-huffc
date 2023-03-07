@@ -3,6 +3,8 @@ import itertools
 import os
 import pathlib
 import platform
+import shutil
+import subprocess
 import tarfile
 import tempfile
 
@@ -60,7 +62,7 @@ class VersionManager:
             case _:
                 raise Exception("Platform is not supported.")
 
-        for asset in r.json()["assets"]:
+        for asset in (release := r.json())["assets"]:
             if not all((val in asset["name"].lower() for val in (system, machine))):
                 continue
 
@@ -69,12 +71,36 @@ class VersionManager:
                     resp.raise_for_status()
                     for chunk in resp.iter_content(None):
                         tmp.write(chunk)
+                    tmp.flush()
 
                 with tarfile.open(tmp.name, "r:gz") as tar:
                     tar.extract("huffc", self.HUFFC_DIR)
 
             (self.HUFFC_DIR / "huffc").rename(self.HUFFC_DIR / f"huffc-{version}")
             return
+
+        if (tool := shutil.which("cargo")) is None:
+            raise Exception("Build tool 'cargo' could not be located.")
+
+        with tempfile.NamedTemporaryFile() as tmp:
+            with self.session.get(release["tarball_url"], stream=True) as resp:
+                resp.raise_for_status()
+                for chunk in resp.iter_content(None):
+                    tmp.write(chunk)
+                tmp.flush()
+
+            with tempfile.TemporaryDirectory(dir=self.HUFFC_DIR) as tmpdir:
+                with tarfile.open(tmp.name) as tar:
+                    tar.extractall(tmpdir)
+
+                repo = next(pathlib.Path(tmpdir).iterdir())
+                subprocess.run(
+                    [tool, "build", "-r", "--locked", "--bin", "huffc"], cwd=repo, check=True
+                )
+                shutil.copyfile(
+                    repo / "target/release/huffc", (binary := self.HUFFC_DIR / f"huffc-{version}")
+                )
+                os.chmod(binary, 755)
 
     def __enter__(self):
         session = requests.Session()
