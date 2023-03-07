@@ -1,13 +1,17 @@
 import contextlib
 import os
+import pathlib
 
 import requests
 import semantic_version as semver
 
 
 class VersionManager:
+    HUFFC_DIR = pathlib.Path.home() / ".huffc"
+
     def __init__(self):
         self.session = None
+        self.HUFFC_DIR.mkdir(exist_ok=True)
 
     def fetch_remote_versions(self):
         r = self.session.get("https://api.github.com/repos/huff-language/huff-rs/releases")
@@ -16,6 +20,13 @@ class VersionManager:
         for release in r.json():
             with contextlib.suppress(ValueError):
                 versions.append(semver.Version(release["name"].removeprefix("v")))
+
+        return versions
+
+    def fetch_local_versions(self):
+        versions = []
+        for binary in self.HUFFC_DIR.iterdir():
+            versions.append(semver.Version(binary.removeprefix("huffc-")))
 
         return versions
 
