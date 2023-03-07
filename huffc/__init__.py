@@ -1,7 +1,10 @@
 import contextlib
+import itertools
 import os
 import pathlib
-import itertools
+import platform
+import tarfile
+import tempfile
 
 import requests
 import semantic_version as semver
@@ -37,6 +40,41 @@ class VersionManager:
             versions.append(semver.Version(binary.removeprefix("huffc-")))
 
         return versions
+
+    def install(self, version, overwrite=False):
+        assert semver.Version(version) in self.fetch_remote_versions()
+
+        if not overwrite:
+            assert semver.Version(version) not in self.fetch_local_versions()
+
+        r = self.session.get(
+            f"https://api.github.com/repos/huff-language/huff-rs/releases/tags/{version}"
+        )
+
+        system = platform.system().lower()
+        match platform.machine().lower():
+            case "amd64" | "x86_64" | "i386" | "i586" | "i686":
+                machine = "amd64"
+            case "aarch64_be" | "aarch64" | "armv8b" | "armv8l":
+                machine = "arm64"
+            case _:
+                raise Exception("Platform is not supported.")
+
+        for asset in r.json()["assets"]:
+            if not all((val in asset["name"].lower() for val in (system, machine))):
+                continue
+
+            with tempfile.NamedTemporaryFile() as tmp:
+                with self.session.get(asset["browser_download_url"], stream=True) as resp:
+                    resp.raise_for_status()
+                    for chunk in resp.iter_content(None):
+                        tmp.write(chunk)
+
+                with tarfile.open(tmp.name, "r:gz") as tar:
+                    tar.extract("huffc", self.HUFFC_DIR)
+
+            (self.HUFFC_DIR / "huffc").rename(self.HUFFC_DIR / f"huffc-{version}")
+            return
 
     def __enter__(self):
         session = requests.Session()
