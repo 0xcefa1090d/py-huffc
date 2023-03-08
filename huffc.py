@@ -1,5 +1,6 @@
 import contextlib
 import itertools
+import json
 import os
 import pathlib
 import platform
@@ -122,3 +123,31 @@ class VersionManager:
     def __exit__(self, exc_type, exc_value, traceback):
         self.session.close()
         self.session = None
+
+
+def compile(files, /, version=None):
+    if version is None:
+        try:
+            version = max(VersionManager.fetch_local_versions())
+        except ValueError:
+            raise Exception("A Huff compiler has not been installed.")
+    else:
+        assert semver.Version(version) in VersionManager.fetch_local_versions()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        subprocess.run(
+            [VersionManager.get_executable(version), "-ad", tmpdir, *files],
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+        )
+
+        artifacts = {}
+        for root, dirs, files in os.walk(tmpdir):
+            for file in files:
+                path = pathlib.Path(root).joinpath(file)
+                key = path.relative_to(tmpdir).as_posix().removesuffix(".json").lower()
+                with path.open() as f:
+                    artifacts[key] = json.load(f)
+
+    return artifacts
