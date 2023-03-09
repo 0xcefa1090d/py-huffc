@@ -5,6 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "py-huffc"
 version = "0.1.0"
+description = "Python wrapper and version manager for the Huff compiler."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [{name = "0xcefa1090d"}]
 dependencies = ["requests", "semantic-version"]
 optional-dependencies = {dev = ["black", "flake8", "isort", "pre-commit"]}
 
