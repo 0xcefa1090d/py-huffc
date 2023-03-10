@@ -102,9 +102,18 @@ class VersionManager:
         with tempfile.NamedTemporaryFile() as tmp:
             with self.session.get(release["tarball_url"], stream=True) as resp:
                 resp.raise_for_status()
-                for chunk in resp.iter_content(None):
-                    tmp.write(chunk)
-                tmp.flush()
+
+                with tqdm.tqdm(
+                    desc=resp.headers["content-disposition"].split("=")[-1],
+                    total=int(resp.headers["content-length"]),
+                    disable=silent,
+                    unit="b",
+                    unit_scale=True,
+                ) as pbar:
+                    for chunk in resp.iter_content(None):
+                        tmp.write(chunk)
+                        pbar.update(len(chunk))
+                    tmp.flush()
 
             with tempfile.TemporaryDirectory(dir=self.HUFFC_DIR) as tmpdir:
                 with tarfile.open(tmp.name) as tar:
@@ -118,7 +127,7 @@ class VersionManager:
                 shutil.copyfile(
                     repo / "target/release/huffc", (binary := self.HUFFC_DIR / f"huffc-{version}")
                 )
-                os.chmod(binary, 755)
+                binary.chmod(755)
 
     def __enter__(self):
         session = requests.Session()
@@ -153,7 +162,7 @@ def compile(files, /, version=None):
         )
 
         artifacts = {}
-        for root, dirs, files in os.walk(tmpdir):
+        for root, _, files in os.walk(tmpdir):
             for file in files:
                 path = pathlib.Path(root).joinpath(file)
                 key = path.relative_to(tmpdir).as_posix().removesuffix(".json").lower()
