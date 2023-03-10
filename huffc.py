@@ -81,7 +81,7 @@ class VersionManager:
 
                     with tqdm.tqdm(
                         desc=f"huffc v{version}",
-                        total=int(resp.headers["content-length"]),
+                        total=int(resp.headers.get("content-length", 0)),
                         disable=silent,
                         unit="b",
                         unit_scale=True,
@@ -106,7 +106,7 @@ class VersionManager:
 
                 with tqdm.tqdm(
                     desc=resp.headers["content-disposition"].split("=")[-1],
-                    total=int(resp.headers["content-length"]),
+                    total=int(resp.headers.get("content-length", 0)),
                     disable=silent,
                     unit="b",
                     unit_scale=True,
