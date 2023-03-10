@@ -13,6 +13,9 @@ authors = [{name = "0xcefa1090d"}]
 dependencies = ["requests", "semantic-version", "tqdm"]
 optional-dependencies = {dev = ["black", "build", "flake8", "isort", "pre-commit", "twine"]}
 
+[project.urls]
+Homepage = "https://github.com/0xcefa1090d/py-huffc"
+
 [tool.black]
 line-length = 100
 
