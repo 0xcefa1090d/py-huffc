@@ -46,8 +46,9 @@ class VersionManager:
     @classmethod
     def fetch_local_versions(cls):
         versions = []
-        for binary in cls.HUFFC_DIR.iterdir():
-            versions.append(semver.Version(binary.name.removeprefix("huffc-")))
+        if cls.HUFFC_DIR.exists():
+            for binary in cls.HUFFC_DIR.iterdir():
+                versions.append(semver.Version(binary.name.removeprefix("huffc-")))
 
         return versions
 
