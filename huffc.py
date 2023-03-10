@@ -129,6 +129,11 @@ class VersionManager:
                 )
                 binary.chmod(755)
 
+    @classmethod
+    def uninstall(cls, version):
+        if binary := cls.get_executable(version):
+            binary.unlink()
+
     def __enter__(self):
         session = requests.Session()
         session.headers.update({"Accept": "application/json", "X-GitHub-Api-Version": "2022-11-28"})
