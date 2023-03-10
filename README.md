@@ -1,6 +1,6 @@
 # py-huffc
 
-Python wrapper and version manager for the Huff compiler.
+Python wrapper and version manager for the Huff compiler
 
 ## Dependencies
 
