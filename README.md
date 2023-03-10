@@ -7,6 +7,13 @@ Python wrapper and version manager for the Huff compiler
 To build binaries from source when a pre-built binary isn't available, the build tool `cargo` must be installed. Refer to the `cargo`
 [documentation](https://doc.rust-lang.org/cargo/) for instruction on installing it.
 
+To prevent rate limits when querying the GitHub API, it is recommended to include a GitHub personal access token as an environment variable.
+Refer to the GitHub API [documentation](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for information on generating a personal access token.
+
+```bash
+export GITHUB_TOKEN="github_pat_XXXX"
+```
+
 ## Installation
 
 ```bash
