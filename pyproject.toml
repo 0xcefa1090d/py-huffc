@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [{name = "0xcefa1090d"}]
 dependencies = ["requests", "semantic-version", "tqdm"]
-optional-dependencies = {dev = ["black", "flake8", "isort", "pre-commit"]}
+optional-dependencies = {dev = ["black", "build", "flake8", "isort", "pre-commit", "twine"]}
 
 [tool.black]
 line-length = 100
