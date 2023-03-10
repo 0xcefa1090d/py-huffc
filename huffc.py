@@ -170,9 +170,8 @@ def compile(files, /, version=None):
         artifacts = {}
         for root, _, files in os.walk(tmpdir):
             for file in files:
-                path = pathlib.Path(root).joinpath(file)
-                key = path.relative_to(tmpdir).as_posix().removesuffix(".json").lower()
-                with path.open() as f:
-                    artifacts[key] = json.load(f)
+                with pathlib.Path(root).joinpath(file).open() as f:
+                    artifact = json.load(f)
+                    artifacts[artifact["file"]["path"]] = artifact
 
     return artifacts
