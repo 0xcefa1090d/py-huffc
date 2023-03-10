@@ -11,6 +11,7 @@ import tempfile
 
 import requests
 import semantic_version as semver
+import tqdm
 
 
 class VersionManager:
@@ -76,9 +77,18 @@ class VersionManager:
             with tempfile.NamedTemporaryFile() as tmp:
                 with self.session.get(asset["browser_download_url"], stream=True) as resp:
                     resp.raise_for_status()
-                    for chunk in resp.iter_content(None):
-                        tmp.write(chunk)
-                    tmp.flush()
+
+                    with tqdm.tqdm(
+                        desc=f"huffc v{version}",
+                        total=int(resp.headers["content-length"]),
+                        disable=silent,
+                        unit="b",
+                        unit_scale=True,
+                    ) as pbar:
+                        for chunk in resp.iter_content(None):
+                            tmp.write(chunk)
+                            pbar.update(len(chunk))
+                        tmp.flush()
 
                 with tarfile.open(tmp.name, "r:gz") as tar:
                     tar.extract("huffc", self.HUFFC_DIR)
