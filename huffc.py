@@ -163,8 +163,7 @@ def compile(files, /, version=None):
         subprocess.run(
             [VersionManager.get_executable(version), "-ad", tmpdir, *files],
             check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.STDOUT,
+            capture_output=True,
         )
 
         artifacts = {}
