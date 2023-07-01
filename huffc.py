@@ -66,7 +66,7 @@ class VersionManager:
         match platform.machine().lower():
             case "amd64" | "x86_64" | "i386" | "i586" | "i686":
                 machine = "amd64"
-            case "aarch64_be" | "aarch64" | "armv8b" | "armv8l":
+            case "aarch64_be" | "aarch64" | "armv8b" | "armv8l" | "arm64":
                 machine = "arm64"
             case _:
                 raise Exception("Platform is not supported.")
